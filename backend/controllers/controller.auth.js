@@ -1,0 +1,338 @@
+const config = require("../config/auth.config");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const uuid = require("uuid");
+const mailService = require("../service/mail-service.js");
+const userModel = require("../models/model.users.js");
+const roleModel = require("../models/model.roles.js");
+const refreshTokenModel = require("../models/model.refreshToken.js");
+
+class AuthController {
+  async signup(req, res) {
+    try {
+      const data = {
+        login: req.body.login,
+        email: req.body.email,
+        password: bcrypt.hashSync(req.body.password, 8),
+        activation_link: uuid.v4(),
+        created: new Date(),
+        id_role: 1,
+      };
+      const role = await roleModel.getIdRole(req.body.role);
+      data.id_role = role.id_role;
+      const user = await userModel.insertUser(data);
+      res.json(user);
+      mailService.sendActivationMail(
+        data.email,
+        `${process.env.API_URL}/api/activate/${data.activation_link}`
+      );
+    } catch (err) {
+      return res.status(500).send({
+        message: "invalid database request",
+        error: err,
+      });
+    }
+  }
+
+  async signin(req, res) {
+    try {
+      const user = await userModel.findUserByExtend("email", req.body.email);
+      if (!user) {
+        return res.status(404).send({ message: `Email Not found.` });
+      }
+      if (!user.is_activated) {
+        return res.status(404).send({ message: `Email not confirmed.` });
+      }
+      const passwordIsValid = bcrypt.compareSync(
+        req.body.password,
+        user.password
+      );
+
+      if (!passwordIsValid) {
+        return res.status(401).send({
+          accessToken: null,
+          message: "Invalid Password!",
+        });
+      }
+
+      const token = jwt.sign({ id: user.id_user }, config.secret, {
+        expiresIn: config.jwtExpiration,
+      });
+
+      let refreshToken = await refreshTokenModel.findTokenByExtend(
+        "id_user",
+        user.id_user
+      );
+
+      if (refreshToken != null) {
+        await refreshTokenModel.destroyTokenByExtend(
+          "id_token",
+          refreshToken.id_token
+        );
+      }
+
+      await refreshTokenModel.insertToken(user);
+
+      refreshToken = await refreshTokenModel.findTokenByExtend(
+        "id_user",
+        user.id_user
+      );
+
+      const role = await roleModel.getRole(user.id_role);
+
+      res.status(200).send({
+        id: user.id_user,
+        username: user.login,
+        email: user.email,
+        role: role.name,
+        accessToken: token,
+        refreshToken: refreshToken.token,
+      });
+    } catch (err) {
+      return res.status(500).send({
+        message: "invalid database request",
+        error: err,
+      });
+    }
+  }
+
+  async refreshToken(req, res) {
+    const { refreshToken: requestToken } = req.body;
+
+    if (requestToken == null) {
+      return res.status(403).json({ message: "Refresh Token is required!" });
+    }
+
+    try {
+      let refreshToken = await refreshTokenModel.findTokenByExtend(
+        "token",
+        requestToken
+      );
+
+      console.log(refreshToken);
+
+      if (!refreshToken) {
+        res.status(403).json({ message: "Refresh token is not in database!" });
+        return;
+      }
+
+      if (refreshTokenModel.verifyExpiration(refreshToken)) {
+        await refreshTokenModel.destroyTokenByExtend("token", refreshToken);
+
+        res.status(403).json({
+          message:
+            "Refresh token was expired. Please make a new signin request",
+        });
+        return;
+      }
+
+      const user = await userModel.findUserByExtend(
+        "id_user",
+        refreshToken.id_user
+      );
+      let newAccessToken = jwt.sign({ id: user.user_id }, config.secret, {
+        expiresIn: config.jwtExpiration,
+      });
+
+      return res.status(200).json({
+        accessToken: newAccessToken,
+        refreshToken: refreshToken.token,
+      });
+    } catch (err) {
+      return res.status(500).send({
+        message: "invalid database request",
+        error: err,
+      });
+    }
+  }
+
+  async activate(req, res, next) {
+    try {
+      const activationLink = req.params.link;
+      const user = await userModel.findUserByExtend(
+        "activation_link",
+        activationLink
+      );
+      if (!user) {
+        return res.status(404).send("Incorect activation link");
+      }
+      await userModel.updateActivateUserByExtend("id_user", user.id_user);
+      return res.redirect(process.env.CLIENT_URL);
+    } catch (err) {
+      return res.status(500).send({
+        message: "invalid database request",
+        error: err,
+      });
+    }
+  }
+}
+
+module.exports = new AuthController();
+
+//exports.signup = (req, res) => {
+//  // Save User to Database
+
+//  const data = {
+//    login: req.body.login,
+//    email: req.body.email,
+//    password: bcrypt.hashSync(req.body.password, 8),
+//    activation_link: uuid.v4(),
+//    created: new Date(),
+//    id_role: 1,
+//  };
+
+//  getIdRole(req.body.role)
+//    .then((role) => {
+//      data.id_role = role.id_role;
+//      console.log(data);
+//      insertUser(data)
+//        .then((user) => {
+//          res.json(user);
+//          mailService.sendActivationMail(
+//            data.email,
+//            `${process.env.API_URL}/api/activate/${data.activation_link}`
+//          );
+//        })
+//        .catch((err) =>
+//          res.status(500).send({
+//            message: "invalid database request after 'insertUser'",
+//            error: err,
+//          })
+//        );
+//    })
+//    .catch((err) =>
+//      res.status(500).send({
+//        message: "invalid database request after 'getIdRole'",
+//        error: err,
+//      })
+//    );
+//};
+
+//exports.signin = (req, res) => {
+//  findUserByExtend("email", req.body.email)
+//    .then(async (user) => {
+//      if (!user) {
+//        return res.status(404).send({ message: `Email Not found.` });
+//      }
+//      if (!user.is_activated) {
+//        return res.status(404).send({ message: `Email not confirmed.` });
+//      }
+
+//      const passwordIsValid = bcrypt.compareSync(
+//        req.body.password,
+//        user.password
+//      );
+
+//      if (!passwordIsValid) {
+//        return res.status(401).send({
+//          accessToken: null,
+//          message: "Invalid Password!",
+//        });
+//      }
+
+//      const token = jwt.sign({ id: user.id_user }, config.secret, {
+//        expiresIn: config.jwtExpiration,
+//      });
+
+//      let refreshToken = await findTokenByExtend("id_user", user.id_user);
+//      if (refreshToken != null) {
+//        destroyTokenByExtend("id_token", refreshToken.id_token).catch((err) =>
+//          res.status(500).send({
+//            message: "invalid database request after 'destroyTokenByExtend'",
+//            error: err,
+//          })
+//        );
+//      }
+
+//      insertToken(user).catch((err) =>
+//        res.status(500).send({
+//          message: "invalid database request after 'insertToken'",
+//          error: err,
+//        })
+//      );
+
+//      refreshToken = await findTokenByExtend("id_user", user.id_user);
+//      getRole(user.id_role)
+//        .then((role) => {
+//          res.status(200).send({
+//            id: user.id_user,
+//            username: user.login,
+//            email: user.email,
+//            role: role.name,
+//            accessToken: token,
+//            refreshToken: refreshToken.token,
+//          });
+//        })
+//        .catch((err) =>
+//          res.status(500).send({
+//            message: "invalid database request after 'getRole'",
+//            error: err,
+//          })
+//        );
+//    })
+//    .catch((err) =>
+//      res.status(500).send({
+//        message: "invalid database request after 'findUserByExtend'",
+//        error: err,
+//      })
+//    );
+//};
+
+//exports.refreshToken = async (req, res) => {
+//  const { refreshToken: requestToken } = req.body;
+
+//  if (requestToken == null) {
+//    return res.status(403).json({ message: "Refresh Token is required!" });
+//  }
+
+//  try {
+//    let refreshToken = await findTokenByExtend("token", requestToken);
+
+//    console.log(refreshToken);
+
+//    if (!refreshToken) {
+//      res.status(403).json({ message: "Refresh token is not in database!" });
+//      return;
+//    }
+
+//    if (verifyExpiration(refreshToken)) {
+//      destroyTokenByExtend("token", refreshToken).catch((err) =>
+//        res.status(500).send({
+//          message: "invalid database request after 'destroyTokenByExtend'",
+//          error: err,
+//        })
+//      );
+
+//      res.status(403).json({
+//        message: "Refresh token was expired. Please make a new signin request",
+//      });
+//      return;
+//    }
+
+//    const user = await findUserByExtend("id_user", refreshToken.id_user);
+//    let newAccessToken = jwt.sign({ id: user.user_id }, config.secret, {
+//      expiresIn: config.jwtExpiration,
+//    });
+
+//    return res.status(200).json({
+//      accessToken: newAccessToken,
+//      refreshToken: refreshToken.token,
+//    });
+//  } catch (err) {
+//    return res.status(500).send({ message: err });
+//  }
+//};
+
+//exports.activate = async (req, res, next) => {
+//  try {
+//    const activationLink = req.params.link;
+//    const user = await findUserByExtend("activation_link", activationLink);
+//    if (!user) {
+//      return res.status(404).send("Incorect activation link");
+//    }
+//    await updateActivateUserByExtend("id_user", user.id_user);
+//    return res.redirect(process.env.CLIENT_URL);
+//  } catch (err) {
+//    return res.status(500).send({ message: err });
+//  }
+//};
