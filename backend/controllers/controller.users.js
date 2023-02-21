@@ -1,45 +1,33 @@
 class UserController {
   async all(req, res) {
     try {
-      res.status(200).send("Public Content.");
+      return res.status(200).send("Public Content.");
     } catch (err) {
-      return res.status(500).send({
-        message: "invalid database request",
-        error: err,
-      });
+      next(ApiError.BadRequest(500, "invalid database request", err));
     }
   }
 
   async user(req, res) {
     try {
-      res.status(200).send("User Content.");
+      return res.status(200).send("User Content.");
     } catch (err) {
-      return res.status(500).send({
-        message: "invalid database request",
-        error: err,
-      });
+      next(ApiError.BadRequest(500, "invalid database request", err));
     }
   }
 
   async admin(req, res) {
     try {
-      res.status(200).send("Admin Content.");
+      return res.status(200).send("Admin Content.");
     } catch (err) {
-      return res.status(500).send({
-        message: "invalid database request",
-        error: err,
-      });
+      next(ApiError.BadRequest(500, "invalid database request", err));
     }
   }
 
   async moderator(req, res) {
     try {
-      res.status(200).send("Moderator Content.");
+      return res.status(200).send("Moderator Content.");
     } catch (err) {
-      return res.status(500).send({
-        message: "invalid database request",
-        error: err,
-      });
+      next(ApiError.BadRequest(500, "invalid database request", err));
     }
   }
 }

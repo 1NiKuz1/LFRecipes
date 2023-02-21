@@ -2,7 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const Router = require("./routes/routes.js");
-
+const errorMiddleware = require("./middleware/error-middleware.js");
+const PORT = process.env.PORT || 5000;
 const app = express();
 
 const corsOptions = {
@@ -20,8 +21,7 @@ app.use(function (req, res, next) {
   next();
 });
 app.use(Router);
-
-const PORT = process.env.PORT || 5000;
+app.use(errorMiddleware);
 
 app.listen(PORT, () =>
   console.log(`Server running at http://localhost:${PORT}`)
