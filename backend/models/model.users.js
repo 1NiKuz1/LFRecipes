@@ -45,6 +45,23 @@ class UserModel {
       );
     });
   }
+
+  updateImageUserById(image, id) {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `UPDATE USERS SET img = ? WHERE id_user = ?`,
+        [image, id],
+        (err, results) => {
+          if (err) {
+            console.log(err);
+            reject(err);
+          } else {
+            resolve(results[0]);
+          }
+        }
+      );
+    });
+  }
 }
 
 module.exports = new UserModel();

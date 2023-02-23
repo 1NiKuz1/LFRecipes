@@ -10,9 +10,7 @@
             </button>
           </li>
           <li class="side-menu__el">
-            <button class="side-menu__button" @click="goByRoute('/person')">
-              Рецепты
-            </button>
+            <button class="side-menu__button">Рецепты</button>
           </li>
           <li class="side-menu__el">
             <button class="side-menu__button">О нас</button>

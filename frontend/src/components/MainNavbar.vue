@@ -17,17 +17,26 @@
         </button>
       </div>
       <div class="main-navbar__nav-wrapepr" v-else>
-        <button class="main-navbar__button-user"></button>
+        <button
+          class="main-navbar__button-user"
+          :style="styleImg"
+          @click="showUserMenu = !showUserMenu"
+        ></button>
+        <user-menu v-model:show="showUserMenu"></user-menu>
       </div>
     </nav>
   </header>
 </template>
 
 <script>
+import UserMenu from "@/components/UserMenu.vue";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "@/stores/auth";
 export default {
   name: "main-navbar",
+  components: {
+    UserMenu,
+  },
   emits: ["showDialog", "showMenu"],
   setup() {
     const auth = useAuthStore();
@@ -36,10 +45,21 @@ export default {
       userData,
     };
   },
+  data() {
+    return {
+      showUserMenu: false,
+      styleImg: {
+        backgroundImage: "url('src/assets/avatar.png')",
+      },
+    };
+  },
   computed: {
     loggedIn() {
       return this.userData.status.loggedIn;
     },
+  },
+  mounted() {
+    this.styleImg.backgroundImage = `url(${this.userData.imageUrl})`;
   },
 };
 </script>
@@ -57,6 +77,10 @@ export default {
   width: 100%;
   max-width: 1280px;
   padding: 0 150px;
+}
+
+.main-navbar__nav-wrapepr {
+  position: relative;
 }
 
 .main-navbar__button-signin {
@@ -101,8 +125,8 @@ export default {
 .main-navbar__button-user {
   width: 36px;
   height: 36px;
-  background-image: url("../assets/logo.svg");
   border-radius: 10em;
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
 }

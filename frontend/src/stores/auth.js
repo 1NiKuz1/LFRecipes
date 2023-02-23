@@ -2,12 +2,19 @@ import { defineStore } from "pinia";
 import AuthService from "../services/auth.service";
 
 const user = JSON.parse(localStorage.getItem("user"));
-
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     userData: user
-      ? { status: { loggedIn: true }, user }
-      : { status: { loggedIn: false }, user: null },
+      ? {
+          status: { loggedIn: true },
+          user,
+          imageUrl: "http://localhost:5000/api/get-image/" + user.id,
+        }
+      : {
+          status: { loggedIn: false },
+          user: null,
+          imageUrl: "src/assets/avatar.png",
+        },
   }),
   actions: {
     login(user) {

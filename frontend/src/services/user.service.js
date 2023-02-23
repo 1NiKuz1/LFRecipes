@@ -1,8 +1,4 @@
-//import axios from "axios";
-//import authHeader from "./auth-header";
 import api from "./api";
-
-//const API_URL = "http://localhost:5000/api/test/";
 
 class UserService {
   getPublicContent() {
@@ -19,6 +15,22 @@ class UserService {
 
   getAdminBoard() {
     return api.get("/test/admin");
+  }
+
+  async uploadImage(file, id) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async () => {
+      const dataUrl = reader.result;
+      try {
+        await api.post("/upload-image", {
+          image: dataUrl,
+          id_user: id,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
   }
 }
 

@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-//const { verifySignUp, authJwt } = require("../middleware");
 const authJwt = require("../middleware/authJwt.js");
 const verifySignUp = require("../middleware/verifySignUp.js");
 const authController = require("../controllers/controller.auth.js");
@@ -37,5 +36,9 @@ router.get(
   [authJwt.verifyToken, authJwt.isAdmin],
   userController.admin
 );
+
+router.post("/api/upload-image", userController.uploadImage);
+
+router.get("/api/get-image/:id", userController.getImage);
 
 module.exports = router;
