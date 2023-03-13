@@ -44,6 +44,7 @@ class UserController {
         return next(ApiError.Error(400, "Invalid image format"));
       }
       await userModel.updateImageUserById(buffer, req.body.id_user);
+      //await userModel.updateUser("img", buffer, "id_user", req.body.id_user);
       return res.status(200).send({ message: "Image saved successfully" });
     } catch (err) {
       next(ApiError.BadRequest(500, "invalid database request", err));
@@ -53,6 +54,10 @@ class UserController {
   async getImage(req, res, next) {
     try {
       const result = await userModel.findUserByExtend("id_user", req.params.id);
+      if (!result.img) {
+        //return next(ApiError.Error(404, "User's img wasn't found"));
+        return res.status(200).send(result.img);
+      }
       const metadata = await sharp(result.img).metadata();
       res.set("Content-Type", `image/${metadata.format}`);
       return res.status(200).send(result.img);

@@ -30,10 +30,10 @@ class UserModel {
     });
   }
 
-  updateActivateUserByExtend(extend, data) {
+  updateUser(setField, setValue, whereField, whereValue) {
     return new Promise((resolve, reject) => {
       db.query(
-        `UPDATE USERS SET is_activated = 1 WHERE ${extend} = "${data}"`,
+        `UPDATE USERS SET ${setField} = "${setValue}" WHERE ${whereField} = "${whereValue}"`,
         (err, results) => {
           if (err) {
             console.log(err);
@@ -65,48 +65,3 @@ class UserModel {
 }
 
 module.exports = new UserModel();
-
-//exports.insertUser = (data) => {
-//  return new Promise((resolve, reject) => {
-//    db.query("INSERT INTO Users SET ?", [data], (err, results) => {
-//      if (err) {
-//        console.log(err);
-//        reject(err);
-//      } else {
-//        resolve(results);
-//      }
-//    });
-//  });
-//};
-
-//exports.findUserByExtend = (extend, data) => {
-//  return new Promise((resolve, reject) => {
-//    db.query(
-//      `SELECT * from USERS WHERE ${extend} = "${data}"`,
-//      (err, results) => {
-//        if (err) {
-//          console.log(err);
-//          reject(err);
-//        } else {
-//          resolve(results[0]);
-//        }
-//      }
-//    );
-//  });
-//};
-
-//exports.updateActivateUserByExtend = (extend, data) => {
-//  return new Promise((resolve, reject) => {
-//    db.query(
-//      `UPDATE USERS SET is_activated = 1 WHERE ${extend} = "${data}"`,
-//      (err, results) => {
-//        if (err) {
-//          console.log(err);
-//          reject(err);
-//        } else {
-//          resolve(results[0]);
-//        }
-//      }
-//    );
-//  });
-//};

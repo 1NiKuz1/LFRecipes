@@ -17,6 +17,12 @@ router.get("/api/activate/:link", authController.activate);
 
 router.post("/api/auth/refreshtoken", authController.refreshToken);
 
+router.post("/api/fogort-password", authController.forgotPassword);
+
+router.get("/api/fogort-password/:link", authController.isUserForgotPassword);
+
+router.patch("/api/change-password", authController.changeUserPassword);
+
 router.get("/api/test/all", userController.all);
 
 router.get(
