@@ -1,13 +1,13 @@
-
 /* semantic color variables for this project */
 :root {
   --color-white: #fff;
   --color-accent: #759242;
+  --color-accent-disabled: #8d9481;
   --color-text: #111;
-  --color-light-black: #2D2D2D;
+  --color-light-black: #2d2d2d;
   --color-dark-green: #374709;
-  --color-light-green: #90B948;
-  --color-gray: #E2E2E2;
+  --color-light-green: #90b948;
+  --color-gray: #e2e2e2;
 }
 
 *,
@@ -22,11 +22,7 @@ body {
   color: var(--color-text);
   background: var(--color-white);
   line-height: 1.6;
-  font-family: Roboto, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu,
-    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: Roboto, Inter, -apple-system, "Segoe UI", sans-serif;
   font-size: 16px;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   min-width: 320px;
 }

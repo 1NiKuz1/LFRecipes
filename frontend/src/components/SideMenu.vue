@@ -10,13 +10,19 @@
             </button>
           </li>
           <li class="side-menu__el">
-            <button class="side-menu__button">Рецепты</button>
+            <button class="side-menu__button" @click="goByRoute('/recipes')">
+              Рецепты
+            </button>
           </li>
           <li class="side-menu__el">
-            <button class="side-menu__button">О нас</button>
+            <button class="side-menu__button" @click="goByRoute('/add-recipe')">
+              Добавить рецепт
+            </button>
           </li>
           <li class="side-menu__el">
-            <button class="side-menu__button">Добавить рецепт</button>
+            <button class="side-menu__button" @click="goByRoute('/about')">
+              О нас
+            </button>
           </li>
           <li class="side-menu__el">
             <button class="side-menu__button">Панель администратора</button>
@@ -101,6 +107,8 @@ export default {
 }
 
 .side-menu__button {
+  width: 100%;
+  text-align: left;
   line-height: 1;
   font-size: 18px;
   padding: 20px 0;

@@ -1,34 +1,35 @@
 <template>
-  <form @submit.prevent="handleLogin" class="auth-form">
+  <Form @submit="handleLogin" :validation-schema="schema" class="auth-form">
     <h3>Авторизация</h3>
     <div class="auth-form__content-wrapper">
       <label for="email">E-mail</label>
-      <form-input
+      <Field class="auth-form__form-input" type="text" name="email"></Field>
+      <ErrorMessage name="email" class="auth-form__error" />
+      <div class="auth-form__fogort-wrapper">
+        <label for="password">Пароль</label>
+        <button @click="handleFogortPassword">Забыли пароль?</button>
+      </div>
+      <Field
         class="auth-form__form-input"
-        v-model="email"
-        type="text"
-        name="email"
-        required
-      ></form-input>
-      <label for="password">Пароль</label>
-      <form-input
-        class="auth-form__form-input"
-        v-model="password"
         type="password"
         name="password"
-        required
-      ></form-input>
+      ></Field>
+      <ErrorMessage name="password" class="auth-form__error" />
     </div>
-
+    <div v-if="errorMessage" class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
     <div class="auth-form__butn-wrapper">
-      <form-button>Войти</form-button>
+      <form-button :disabled="isLoading">Войти</form-button>
     </div>
-  </form>
+  </Form>
 </template>
 
 <script>
 import FormInput from "@/components/UI/FormInput.vue";
 import FormButton from "@/components/UI/FormButton.vue";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "@/stores/auth";
 export default {
@@ -36,6 +37,9 @@ export default {
   components: {
     FormInput,
     FormButton,
+    Form,
+    Field,
+    ErrorMessage,
   },
   emits: ["hideDialog"],
   setup() {
@@ -49,21 +53,42 @@ export default {
   },
   data() {
     return {
-      email: "",
-      password: "",
+      errorMessage: "",
+      isLoading: false,
     };
   },
+  computed: {
+    schema() {
+      return yup.object({
+        email: yup
+          .string()
+          .trim()
+          .required("Обязательное поле")
+          .email("Не верный формат"),
+        password: yup.string().trim().min(8).required("Обязательное поле"),
+      });
+    },
+  },
   methods: {
-    handleLogin() {
-      this.login({ email: this.email, password: this.password }).then(
-        (res) => {
-          console.log(res);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
+    handleFogortPassword() {
       this.$emit("hideDialog");
+      this.$router.push("/fogort-password");
+    },
+    async handleLogin(values) {
+      this.isLoading = true;
+      try {
+        await this.login({ email: values.email, password: values.password });
+        this.$emit("hideDialog");
+      } catch (error) {
+        this.errorMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        console.log(this.message);
+      }
+      this.isLoading = false;
     },
   },
 };
@@ -75,12 +100,27 @@ export default {
   flex-direction: column;
   margin-top: 30px;
 }
+
+.auth-form__fogort-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+.auth-form__fogort-wrapper button {
+  color: var(--color-accent);
+}
+
+.auth-form__error {
+  color: red;
+}
 .auth-form__content-wrapper {
   display: flex;
   flex-direction: column;
   margin-top: 10px;
 }
 .auth-form__form-input {
+  padding: 2px 10px;
+  border: 1px solid var(--color-light-black);
+  border-radius: 8px;
   margin: 5px 0;
 }
 .auth-form__butn-wrapper {

@@ -26,6 +26,12 @@ class AuthService {
       role,
     });
   }
+  fogortPassword(email) {
+    return api.post("/fogort-password", { email: email });
+  }
+  changeUserPassword(email, password) {
+    return api.patch("/change-password", { email: email, password: password });
+  }
 }
 
 export default new AuthService();

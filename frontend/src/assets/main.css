@@ -1,13 +1,30 @@
 @import "./base.css";
 
+a {
+  color: var(--color-accent);
+}
+
 h1 {
   font-size: 42px;
   font-weight: 600;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 34px;
+  font-weight: 500;
 }
 
 h3 {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 500;
+  margin-bottom: 20px;
+}
+
+h4 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 30px;
 }
 
 ul {
@@ -26,4 +43,27 @@ button {
   border: none;
   padding: 0;
   margin: 0;
+}
+
+h1,
+.desc {
+  text-align: center;
+}
+
+.desc {
+  font-size: 24px;
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 32px;
+  }
+
+  h2 {
+    font-size: 28px;
+  }
+
+  h3 {
+    font-size: 24px;
+  }
 }

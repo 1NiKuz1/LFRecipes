@@ -29,11 +29,12 @@ import api from "@/services/api";
 export default {
   setup() {
     const user = useUserStore();
-    const { uploadImage } = user;
+    const { uploadImage, getImage } = user;
     const { userData } = storeToRefs(user);
     return {
       userData,
       uploadImage,
+      getImage,
     };
   },
   methods: {
@@ -52,10 +53,8 @@ export default {
   mounted() {
     if (!this.userData.user) {
       this.$router.push("/");
-    } else {
-      this.userData.imageUrl =
-        "http://localhost:5000/api/get-image/" + this.userData.user.id;
     }
+    this.getImage();
   },
 };
 </script>

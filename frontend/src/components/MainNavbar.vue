@@ -1,6 +1,6 @@
 <template>
   <header class="navbar-header">
-    <nav class="main-navbar">
+    <nav class="container main-navbar">
       <button class="menu-burger" @click="$emit('showMenu', true)"></button>
       <div v-if="!loggedIn" class="main-navbar__nav-wrapepr">
         <button
@@ -31,7 +31,7 @@
 <script>
 import UserMenu from "@/components/UserMenu.vue";
 import { storeToRefs } from "pinia";
-import { useAuthStore } from "@/stores/auth";
+import { useUserStore } from "@/stores/user";
 export default {
   name: "main-navbar",
   components: {
@@ -39,10 +39,12 @@ export default {
   },
   emits: ["showDialog", "showMenu"],
   setup() {
-    const auth = useAuthStore();
-    const { userData } = storeToRefs(auth);
+    const user = useUserStore();
+    const { getImage } = user;
+    const { userData } = storeToRefs(user);
     return {
       userData,
+      getImage,
     };
   },
   data() {
@@ -58,16 +60,34 @@ export default {
       return this.userData.status.loggedIn;
     },
   },
+  methods: {
+    getUserAvatar() {
+      if (this.userData.user) {
+        this.getImage()
+          .then((img) => {
+            this.styleImg.backgroundImage = `url(${img})`;
+          })
+          .catch((err) => console.log(err));
+      }
+    },
+  },
+  watch: {
+    userData: {
+      handler() {
+        this.getUserAvatar();
+      },
+      deep: true,
+    },
+  },
   mounted() {
-    this.styleImg.backgroundImage = `url(${this.userData.imageUrl})`;
+    this.getUserAvatar();
   },
 };
 </script>
 
 <style scoped>
 .navbar-header {
-  display: flex;
-  justify-content: center;
+  position: relative;
 }
 
 .main-navbar {
@@ -75,8 +95,6 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1280px;
-  padding: 0 150px;
 }
 
 .main-navbar__nav-wrapepr {
@@ -129,16 +147,5 @@ export default {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-}
-
-@media (max-width: 1000px) {
-  .main-navbar {
-    padding: 0 50px;
-  }
-}
-@media (max-width: 380px) {
-  .main-navbar {
-    padding: 0 20px;
-  }
 }
 </style>

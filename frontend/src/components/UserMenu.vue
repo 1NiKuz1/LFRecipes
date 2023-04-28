@@ -72,7 +72,7 @@ export default {
   top: 45px;
   background: var(--color-white);
   border: 1px solid rgba(0, 0, 0, 0.6);
-  border-radius: 5px;
+  border-radius: 10px;
   min-width: 150px;
   height: auto;
   padding: 10px;

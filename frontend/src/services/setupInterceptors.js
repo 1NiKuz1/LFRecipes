@@ -22,9 +22,12 @@ const setup = (auth) => {
     },
     async (err) => {
       const originalConfig = err.config;
-
-      if (originalConfig.url !== "/auth/signin" && err.response) {
-        // Access Token was expired
+      if (
+        originalConfig.url !== "/auth/signin" &&
+        originalConfig.url !== "/change-password" &&
+        err.response
+      ) {
+        // Срок действия токена доступа истек
         if (err.response.status === 401 && !originalConfig._retry) {
           originalConfig._retry = true;
 
@@ -44,7 +47,6 @@ const setup = (auth) => {
           }
         }
       }
-
       return Promise.reject(err);
     }
   );

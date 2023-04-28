@@ -1,49 +1,42 @@
 <template>
-  <form @submit.prevent="handlerRegister" class="reg-form">
+  <Form @submit="handlerRegister" :validation-schema="schema" class="reg-form">
     <h3>Регистрация</h3>
     <div class="reg-form__content-wrapper">
-      <label for="email">Логин</label>
-      <form-input
-        class="reg-form__form-input"
-        v-model="login"
-        type="text"
-        name="login"
-        required
-      ></form-input>
+      <label for="login">Логин</label>
+      <Field class="reg-form__form-input" type="text" name="login"></Field>
+      <ErrorMessage name="login" class="reg-form__error" />
       <label for="email">E-mail</label>
-      <form-input
-        class="reg-form__form-input"
-        v-model="email"
-        type="text"
-        name="email"
-        required
-      ></form-input>
+      <Field class="reg-form__form-input" type="email" name="email"></Field>
+      <ErrorMessage name="email" class="reg-form__error" />
       <label for="password">Пароль</label>
-      <form-input
+      <Field
         class="reg-form__form-input"
-        v-model="password"
         type="password"
         name="password"
-        required
-      ></form-input>
-      <label for="password">Повторите пароль</label>
-      <form-input
+      ></Field>
+      <ErrorMessage name="password" class="reg-form__error" />
+      <label for="repeatPassword">Повторите пароль</label>
+      <Field
         class="reg-form__form-input"
-        v-model="repeatPassword"
         type="password"
         name="repeatPassword"
-        required
-      ></form-input>
+      ></Field>
+      <ErrorMessage name="repeatPassword" class="reg-form__error" />
+    </div>
+    <div v-if="errorMessage" class="alert alert-danger" role="alert">
+      {{ errorMessage }}
     </div>
     <div class="reg-form__butn-wrapper">
-      <form-button>Отправить</form-button>
+      <form-button :disabled="isLoading">Отправить</form-button>
     </div>
-  </form>
+  </Form>
 </template>
 
 <script>
 import FormInput from "@/components/UI/FormInput.vue";
 import FormButton from "@/components/UI/FormButton.vue";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "@/stores/auth";
 export default {
@@ -51,6 +44,9 @@ export default {
   components: {
     FormInput,
     FormButton,
+    Form,
+    Field,
+    ErrorMessage,
   },
   emits: ["hideDialog"],
   setup() {
@@ -64,32 +60,54 @@ export default {
   },
   data() {
     return {
-      login: "",
-      email: "",
-      password: "",
-      repeatPassword: "",
+      errorMessage: "",
+      isLoading: false,
     };
   },
+  computed: {
+    schema() {
+      return yup.object({
+        login: yup.string().trim().required("Обязательное поле"),
+        email: yup
+          .string()
+          .trim()
+          .required("Обязательное поле")
+          .email("Не верный формат"),
+        password: yup.string().trim().min(8).required("Обязательное поле"),
+        repeatPassword: yup
+          .string()
+          .trim()
+          .min(8)
+          .required("Обязательное поле"),
+      });
+    },
+  },
   methods: {
-    handlerRegister() {
-      if (this.password !== this.repeatPassword) {
-        alert("Пароль не соот");
+    async handlerRegister(values) {
+      console.log(values);
+      if (values.password !== values.repeatPassword) {
+        this.errorMessage = "Passwords don't match";
         return;
       }
-      this.register({
-        login: this.login,
-        email: this.email,
-        password: this.password,
-        role: "user",
-      }).then(
-        (res) => {
-          console.log(res);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-      this.$emit("hideDialog");
+      this.isLoading = true;
+      try {
+        await this.register({
+          login: values.login,
+          email: values.email,
+          password: values.password,
+          role: "user",
+        });
+        this.$emit("hideDialog");
+      } catch (error) {
+        this.errorMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        console.log(this.message);
+      }
+      this.isLoading = false;
     },
   },
 };
@@ -101,12 +119,19 @@ export default {
   flex-direction: column;
   margin-top: 30px;
 }
+
+.reg-form__error {
+  color: red;
+}
 .reg-form__content-wrapper {
   display: flex;
   flex-direction: column;
   margin-top: 10px;
 }
 .reg-form__form-input {
+  padding: 2px 10px;
+  border: 1px solid var(--color-light-black);
+  border-radius: 8px;
   margin: 5px 0;
 }
 .reg-form__butn-wrapper {
