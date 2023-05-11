@@ -51,7 +51,7 @@ export default {
     return {
       showUserMenu: false,
       styleImg: {
-        backgroundImage: "url('src/assets/avatar.png')",
+        backgroundImage: "url('../src/assets/avatar.png')",
       },
     };
   },

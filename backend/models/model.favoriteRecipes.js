@@ -1,43 +1,23 @@
 const db = require("../config/db.config.js");
 
-class RecipeCategoryModel {
-  insertRecipeCategory(data) {
+class FavoriteRecipeModel {
+  addFavoriteRecipe(data) {
     return new Promise((resolve, reject) => {
-      db.query(
-        "INSERT INTO recipes_categories SET ?",
-        [data],
-        (err, results) => {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            resolve(results);
-          }
+      db.query("INSERT INTO favorite_recipes SET ?", [data], (err, results) => {
+        if (err) {
+          console.log(err);
+          reject(err);
+        } else {
+          resolve(results);
         }
-      );
+      });
     });
   }
 
-  getRecipeCategories() {
+  getUserFavoriteRecipes(id) {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT id_recipe, id_category FROM recipes_categories`,
-        (err, results) => {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            resolve(results);
-          }
-        }
-      );
-    });
-  }
-
-  getRecipeCategoriesByRecipeId(id) {
-    return new Promise((resolve, reject) => {
-      db.query(
-        `SELECT id_category FROM recipes_categories WHERE id_recipe = ?`,
+        "SELECT id_recipe FROM favorite_recipes WHERE id_user = ?",
         [id],
         (err, results) => {
           if (err) {
@@ -51,10 +31,27 @@ class RecipeCategoryModel {
     });
   }
 
-  deleteRecipeCategories(id) {
+  deleteUserFavoriteRecipe(id_user, id_recipe) {
     return new Promise((resolve, reject) => {
       db.query(
-        "DELETE FROM recipes_categories WHERE id_recipe = ?",
+        "DELETE FROM favorite_recipes WHERE id_user = ? AND id_recipe = ?",
+        [id_user, id_recipe],
+        (err, results) => {
+          if (err) {
+            console.log(err);
+            reject(err);
+          } else {
+            resolve(results);
+          }
+        }
+      );
+    });
+  }
+
+  deleteAllUserFavoriteRecipes(id) {
+    return new Promise((resolve, reject) => {
+      db.query(
+        "DELETE FROM favorite_recipes WHERE id_user = ?",
         [id],
         (err, results) => {
           if (err) {
@@ -68,27 +65,10 @@ class RecipeCategoryModel {
     });
   }
 
-  deleteRecipeCategoriesByIdCategory(id) {
+  deleteFavoriteRecipe(id) {
     return new Promise((resolve, reject) => {
       db.query(
-        "DELETE FROM recipes_categories WHERE id_category = ?",
-        [id],
-        (err, results) => {
-          if (err) {
-            console.log(err);
-            reject(err);
-          } else {
-            resolve(results);
-          }
-        }
-      );
-    });
-  }
-
-  deleteAllRecipeCategories(id) {
-    return new Promise((resolve, reject) => {
-      db.query(
-        "DELETE FROM recipes_categories WHERE FIND_IN_SET(id_recipe, ?) > 0",
+        "DELETE FROM favorite_recipes WHERE id_recipe = ?",
         [id],
         (err, results) => {
           if (err) {
@@ -103,4 +83,4 @@ class RecipeCategoryModel {
   }
 }
 
-module.exports = new RecipeCategoryModel();
+module.exports = new FavoriteRecipeModel();

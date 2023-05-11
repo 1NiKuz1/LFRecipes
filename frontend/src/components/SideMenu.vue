@@ -14,7 +14,7 @@
               Рецепты
             </button>
           </li>
-          <li class="side-menu__el">
+          <li class="side-menu__el" v-if="userData.user">
             <button class="side-menu__button" @click="goByRoute('/add-recipe')">
               Добавить рецепт
             </button>
@@ -24,8 +24,10 @@
               О нас
             </button>
           </li>
-          <li class="side-menu__el">
-            <button class="side-menu__button">Панель администратора</button>
+          <li class="side-menu__el" v-if="userData.user?.role === 'admin'">
+            <button class="side-menu__button" @click="goByRoute('/admin')">
+              Панель администратора
+            </button>
           </li>
         </ul>
       </nav>
@@ -34,6 +36,8 @@
 </template>
 
 <script>
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
 export default {
   name: "side-menu",
   emits: ["update:show"],
@@ -43,10 +47,20 @@ export default {
       default: false,
     },
   },
+
+  setup() {
+    const user = useUserStore();
+    const { userData } = storeToRefs(user);
+    return {
+      userData,
+    };
+  },
+
   methods: {
     hideMenu() {
       this.$emit("update:show", false);
     },
+
     goByRoute(route) {
       this.hideMenu();
       this.$router.push(route);

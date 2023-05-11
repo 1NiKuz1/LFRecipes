@@ -58,6 +58,23 @@ class AuthJwt {
     req.role = ROLES[0]; //user
     await this.#verifyRole(req, res, next);
   };
+
+  verifyRecipeChanged = async (req, res, next) => {
+    try {
+      const user = await userModel.findUserByExtend("id_user", req.id_user);
+      const role = await roleModel.getRole(user.id_role);
+      if (
+        req.id_user != req.params.id_user &&
+        role.name !== ROLES[2] &&
+        role.name !== ROLES[1]
+      ) {
+        return next(ApiError.Error(403, `Forbidden for you`));
+      }
+      next();
+    } catch (error) {
+      next(ApiError.BadRequest(500, "invalid database request", err));
+    }
+  };
 }
 
 module.exports = new AuthJwt();

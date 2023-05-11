@@ -6,8 +6,10 @@ import ChangePasswordView from "@/views/ChangePasswordView.vue";
 import AboutView from "@/views/AboutView.vue";
 import NotFoundView from "@/views/NotFoundView.vue";
 import AddRecipeView from "@/views/AddRecipeView.vue";
+import UpdateRecipeView from "@/views/UpdateRecipeView.vue";
 import RecipesView from "@/views/RecipesView.vue";
 import RecipeView from "@/views/RecipeView.vue";
+import AdminView from "@/views/AdminView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,14 +45,24 @@ const router = createRouter({
       component: AddRecipeView,
     },
     {
+      path: "/update-recipe/:id",
+      name: "update-recipe",
+      component: UpdateRecipeView,
+    },
+    {
       path: "/recipes",
       name: "recipes",
       component: RecipesView,
     },
     {
-      path: "/recipe",
+      path: "/recipe/:id",
       name: "recipe",
       component: RecipeView,
+    },
+    {
+      path: "/admin",
+      name: "admin",
+      component: AdminView,
     },
     {
       path: "/:pathMatch(.*)*",

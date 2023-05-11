@@ -22,10 +22,10 @@ class AuthController {
       const role = await roleModel.getIdRole(req.body.role);
       data.id_role = role.id_role;
       const user = await userModel.insertUser(data);
-      //await mailService.sendActivationMail(
-      //  data.email,
-      //  `${process.env.API_URL}/api/activate/${data.email_token}`
-      //);
+      await mailService.sendActivationMail(
+        data.email,
+        `${process.env.API_URL}/api/activate/${data.email_token}`
+      );
       return res.json(user);
     } catch (err) {
       if (err instanceof ApiError) {

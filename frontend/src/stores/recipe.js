@@ -23,6 +23,15 @@ export const useRecipeStore = defineStore("recipe", () => {
     }
   }
 
+  async function updateRecipe(id_recipe, id_user, data) {
+    if (!userData.status.loggedIn) return;
+    try {
+      return await RecipeService.updateRecipe(id_recipe, id_user, data);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
   async function getRecipes() {
     if (!userData.status.loggedIn) return;
     try {
@@ -48,5 +57,6 @@ export const useRecipeStore = defineStore("recipe", () => {
     getRecipes,
     getRecipeCategories,
     addRecipe,
+    updateRecipe,
   };
 });

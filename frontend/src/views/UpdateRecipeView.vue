@@ -1,16 +1,17 @@
 <template>
   <section class="not-found">
     <div class="container">
-      <h1>Добавить рецепт</h1>
+      <h1>Изменить рецепт</h1>
       <div class="add-recipe">
         <Form
-          @submit="handleAddRecipe"
+          @submit="handleUpdateRecipe"
           :validation-schema="schema"
           class="add-recipe-form"
         >
           <div class="add-recipe-form__content-wrapper">
             <label for="name">Название рецепта</label>
             <Field
+              v-model="recipe.name"
               class="add-recipe-form__form-input"
               type="text"
               name="name"
@@ -19,6 +20,7 @@
 
             <label for="video_link">Ссылка на видео с рецептом</label>
             <Field
+              v-model="recipe.video_link"
               class="add-recipe-form__form-input"
               type="text"
               name="video_link"
@@ -27,6 +29,7 @@
 
             <label for="description">Описание</label>
             <Field
+              v-model="recipe.description"
               as="textarea"
               class="add-recipe-form__form-input"
               name="description"
@@ -36,6 +39,7 @@
 
             <label for="categories">Категории</label>
             <Field
+              v-model="selectedCategories"
               as="select"
               name="categories"
               class="add-recipe-form__form-select"
@@ -71,7 +75,7 @@
             </p>
           </div>
           <div class="add-recipe-form__butn-wrapper">
-            <form-button :disabled="isLoading">Добавить</form-button>
+            <form-button :disabled="isLoading">Изменить</form-button>
           </div>
         </Form>
       </div>
@@ -80,6 +84,7 @@
 </template>
 
 <script>
+import RecipeService from "@/services/recipe.service.js";
 import FormInput from "@/components/UI/FormInput.vue";
 import FormButton from "@/components/UI/FormButton.vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
@@ -102,19 +107,21 @@ export default {
     const recipe = useRecipeStore();
     const category = useCategoryStore();
     const { userData } = storeToRefs(auth);
-    const { addRecipe } = recipe;
+    const { updateRecipe } = recipe;
     const { getCategories } = category;
     const { categories } = storeToRefs(category);
     return {
       userData,
-      addRecipe,
+      updateRecipe,
       categories,
       getCategories,
     };
   },
   data() {
     return {
+      recipe: {},
       groups: {},
+      selectedCategories: [],
       isLoading: false,
       errorCategories: "",
       errorImage: "",
@@ -136,6 +143,11 @@ export default {
   methods: {
     async loadData() {
       if (!this.categories.lenght) await this.getCategories();
+      this.recipe = await RecipeService.getRecipe(this.$route.params.id);
+      this.categories.forEach((category) => {
+        if (this.recipe.categories.includes(category.category_name))
+          this.selectedCategories.push(category.id);
+      });
       this.loadGroups();
     },
 
@@ -165,20 +177,19 @@ export default {
       }
     },
 
-    async handleAddRecipe(values) {
+    async handleUpdateRecipe(values) {
       if (!values.categories) {
         this.errorCategories = "Нужно выбрать хотя бы одну категорию";
         return;
       }
       values.img = this.$refs.image.files[0];
-      if (!values.img) {
-        this.errorImage = "Необходимо добавить изображение";
-        return;
-      }
-      values.id_user = this.userData.user.id;
       this.isLoading = true;
       try {
-        await this.addRecipe(values);
+        await this.updateRecipe(
+          this.$route.params.id,
+          this.recipe.id_user,
+          values
+        );
         this.errorCategories = "";
         this.errorImage = "";
         this.$router.push("/recipes");

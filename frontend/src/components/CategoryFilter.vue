@@ -86,6 +86,7 @@ export default {
       required: true,
     },
   },
+
   setup() {
     const category = useCategoryStore();
     const { getCategories } = category;
@@ -95,15 +96,18 @@ export default {
       getCategories,
     };
   },
+
   data() {
     return {
       groups: {},
       isChecked: false,
     };
   },
+
   mounted() {
     this.loadData();
   },
+
   methods: {
     async loadData() {
       if (!this.categories.lenght) await this.getCategories();

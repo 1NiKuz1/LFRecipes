@@ -6,12 +6,12 @@
         Здесь вы сможете просматреть рецепты пользуясь фильтрами по разным
         категориям и сортировкой.
       </p>
-      {{ filteredRecipes }}
       <form @submit.prevent class="form-filters">
         <input v-model="searchInput" type="text" placeholder="Поиск..." />
         <select v-model="sortSelect">
-          <option value="name">Название</option>
-          <option value="date-added">Дата добавления</option>
+          <option v-for="sort in sorts" :key="sort.name" :value="sort">
+            {{ sort.name }}
+          </option>
         </select>
         <img
           src="../assets/images/filter.svg"
@@ -26,7 +26,7 @@
           <category-filter :selectedСategories="selectedCategories" />
         </div>
 
-        <div class="col-md-9">
+        <div class="offset-md-1 col-md-8">
           <template v-if="recipes.length">
             <recipe-cards
               class="recipes-offset"
@@ -34,6 +34,12 @@
             ></recipe-cards>
           </template>
           <p v-else>Рецепты не найдены...</p>
+          <main-pagination
+            class="pagination"
+            v-model:page="page"
+            :countOfRecords="countOfRecords"
+            :limit="limit"
+          ></main-pagination>
         </div>
       </div>
     </div>
@@ -43,6 +49,8 @@
 <script>
 import CategoryFilter from "@/components/CategoryFilter.vue";
 import RecipeCards from "@/components/RecipeCards.vue";
+import MainPagination from "@/components/MainPagination.vue";
+import RecipeService from "@/services/recipe.service.js";
 import { storeToRefs } from "pinia";
 import { useRecipeStore } from "@/stores/recipe";
 import { useCategoryStore } from "@/stores/category";
@@ -50,60 +58,104 @@ export default {
   components: {
     CategoryFilter,
     RecipeCards,
+    MainPagination,
   },
+
   setup() {
     const recipe = useRecipeStore();
     const category = useCategoryStore();
-    const { getRecipes, getRecipeCategories } = recipe;
-    const { recipes, recipeCategories } = storeToRefs(recipe);
+    const { getRecipeCategories } = recipe;
+    const { recipeCategories } = storeToRefs(recipe);
     const { getCategories } = category;
     const { categories } = storeToRefs(category);
+
+    const sorts = [
+      {
+        name: "По названию",
+        sort: "name",
+        sortParam: "asc",
+      },
+      {
+        name: "По названию (убывание)",
+        sort: "name",
+        sortParam: "desc",
+      },
+      {
+        name: "По дате добавления",
+        sort: "created_at",
+        sortParam: "asc",
+      },
+      {
+        name: "По дате добавления (убывание)",
+        sort: "created_at",
+        sortParam: "desc",
+      },
+    ];
+
     return {
       categories,
       getCategories,
       getRecipeCategories,
-      recipes,
       recipeCategories,
-      getRecipes,
+      sorts,
     };
   },
+
   data() {
     return {
       searchInput: "",
-      sortSelect: "name",
+      sortSelect: this.sorts[0],
+      recipes: [],
       selectedCategories: [],
       isShowCategories: true,
+      limit: 10,
+      page: 1,
+      countOfRecords: 0,
     };
   },
-  computed: {
-    filteredRecipes() {
-      if (!this.selectedCategories.length) return this.recipes;
-      const filteredRecipeCategories = this.recipeCategories
-        .filter((row) => {
-          return this.selectedCategories.includes(row.id_category);
-        })
-        .map((item) => item.id_recipe);
-      console.log(filteredRecipeCategories);
-      //return this.recipes.filter((recipe) => {
-      //  return filteredRecipeCategories.includes(recipe.id);
-      //});
-      return this.recipes;
-    },
-  },
+
   mounted() {
     this.loadData();
   },
+
   methods: {
     async loadData() {
       if (!this.categories.lenght) await this.getCategories();
-      if (!this.recipes.lenght) await this.getRecipes();
       if (!this.recipeCategories.lenght) await this.getRecipeCategories();
+      await this.loadRecipes();
+    },
+    async loadRecipes() {
+      try {
+        const data = {
+          name: this.searchInput,
+          page: this.page,
+          limit: this.limit,
+          sort: this.sortSelect.sort,
+          sortParam: this.sortSelect.sortParam,
+          filters: this.selectedCategories,
+        };
+        const result = await RecipeService.getRecipes(data);
+        this.countOfRecords = +result.headers["x-total-count"];
+        this.recipes = result.data;
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
+
   watch: {
+    sortSelect() {
+      this.loadRecipes();
+    },
+
+    searchInput() {
+      this.loadRecipes();
+    },
+
     selectedCategories: {
       handler(newValue, oldValue) {
-        console.log(this.selectedCategories);
+        console.log(newValue);
+        this.loadRecipes();
       },
       deep: true,
     },
@@ -144,5 +196,9 @@ input {
   gap: 20px;
   margin-bottom: 50px;
   flex-wrap: wrap;
+}
+
+.pagination {
+  margin-top: 60px;
 }
 </style>

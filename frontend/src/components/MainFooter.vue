@@ -12,7 +12,6 @@
 p {
   margin: 0;
   color: var(--color-white);
-  font-size: 18px;
   font-weight: 400;
 }
 
