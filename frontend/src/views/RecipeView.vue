@@ -9,6 +9,7 @@
           :src="videLink"
           frameborder="0"
           allowfullscreen
+          class="recipe__video"
         ></iframe>
         <p>{{ recipe.description }}</p>
         <p>Список категорий: {{ recipe?.categories?.join(", ") }}</p>
@@ -137,9 +138,14 @@ export default {
 .recipe {
   margin-bottom: 150px;
 }
+
 h1 {
   text-align: left;
   margin-bottom: 60px;
+}
+
+.recipe__video {
+  margin-bottom: 30px;
 }
 
 .recipe__accent-content {
