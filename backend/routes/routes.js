@@ -42,11 +42,7 @@ router.post(
   userController.uploadImage
 );
 router.get("/api/user/get-image/:id", userController.getImage);
-router.patch(
-  "/api/user/:id",
-  [authJwt.verifyToken, authJwt.isAdmin],
-  userController.updateUser
-);
+router.patch("/api/user/:id", [authJwt.verifyToken], userController.updateUser);
 router.delete(
   "/api/user/:id",
   [authJwt.verifyToken, authJwt.isAdmin],

@@ -95,6 +95,7 @@ h1 {
 .fogort-password_form-wrapper {
   display: flex;
   justify-content: center;
+  margin-bottom: 150px;
 }
 .fogort-form {
   display: flex;

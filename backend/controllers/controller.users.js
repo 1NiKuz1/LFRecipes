@@ -2,6 +2,7 @@ const UserModel = require("../models/model.users.js");
 const FavoriteRecipeModel = require("../models/model.favoriteRecipes.js");
 const RecipeModel = require("../models/model.recipes.js");
 const RecipeCategoryModel = require("../models/model.recipesCategories.js");
+const RefreshTokenModel = require("../models/model.refreshToken.js");
 const ApiError = require("../exceptions/api-error");
 const sharp = require("sharp");
 const bcrypt = require("bcryptjs");
@@ -100,6 +101,7 @@ class UserController {
       }
 
       await FavoriteRecipeModel.deleteAllUserFavoriteRecipes(req.params.id);
+      await RefreshTokenModel.destroyTokenByExtend("id_user", req.params.id);
       await UserModel.deleteUser(req.params.id);
       return res.send("The user has been deleted");
     } catch (err) {
