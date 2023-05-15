@@ -107,8 +107,6 @@ class AuthController {
         requestToken
       );
 
-      console.log(refreshToken);
-
       if (!refreshToken) {
         return next(ApiError.Error(403, "Refresh token is not in database!"));
       }
@@ -150,7 +148,8 @@ class AuthController {
       if (!user) {
         return next(ApiError.Error(404, "Incorect activation link"));
       }
-      await userModel.updateUser("is_activated", 1, "id_user", user.id_user);
+      //await userModel.updateUser("is_activated", 1, "id_user", user.id_user);
+      await userModel.updateUser(user.id_user, { is_activated: 1 });
       return res.redirect(process.env.CLIENT_URL);
     } catch (err) {
       if (err instanceof ApiError) {
@@ -167,12 +166,13 @@ class AuthController {
         return next(ApiError.Error(401, "Email Not found"));
       }
       const emailToken = uuid.v4();
-      await userModel.updateUser(
-        "email_token",
-        emailToken,
-        "id_user",
-        user.id_user
-      );
+      //await userModel.updateUser(
+      //  "email_token",
+      //  emailToken,
+      //  "id_user",
+      //  user.id_user,
+      //);
+      await userModel.updateUser(user.id_user, { email_token: emailToken });
       await mailService.sendActivationMail(
         req.body.email,
         `${process.env.API_URL}/api/fogort-password/${emailToken}`
@@ -198,12 +198,13 @@ class AuthController {
       if (user.is_fogort_password) {
         return res.redirect(process.env.CLIENT_URL + "/change-password");
       }
-      await userModel.updateUser(
-        "is_fogort_password",
-        1,
-        "id_user",
-        user.id_user
-      );
+      //await userModel.updateUser(
+      //  "is_fogort_password",
+      //  1,
+      //  "id_user",
+      //  user.id_user
+      //);
+      await userModel.updateUser(user.id_user, { is_fogort_password: 1 });
       return res.redirect(process.env.CLIENT_URL + "/change-password");
     } catch (err) {
       if (err instanceof ApiError) {
@@ -223,13 +224,15 @@ class AuthController {
         return next(ApiError.Error(401, "Email not verified"));
       }
       const password = bcrypt.hashSync(req.body.password, 8);
-      await userModel.updateUser("password", password, "id_user", user.id_user);
-      await userModel.updateUser(
-        "is_fogort_password",
-        0,
-        "id_user",
-        user.id_user
-      );
+      //await userModel.updateUser("password", password, "id_user", user.id_user);
+      await userModel.updateUser(user.id_user, { password: password });
+      //await userModel.updateUser(
+      //  "is_fogort_password",
+      //  0,
+      //  "id_user",
+      //  user.id_user
+      //);
+      await userModel.updateUser(user.id_user, { is_fogort_password: 0 });
       return res.status(200).json({
         message: "password was changed",
       });

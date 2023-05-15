@@ -29,7 +29,7 @@
       ></Field>
       <ErrorMessage name="password" class="add-form__error" />
 
-      <label for="id_role">Категории</label>
+      <label for="id_role">Роли</label>
       <Field as="select" name="id_role" class="add-form__form-select">
         <optgroup label="Роли">
           <option v-for="role of roles" :key="role" :value="role">

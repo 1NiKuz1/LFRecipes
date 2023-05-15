@@ -41,11 +41,7 @@ router.post(
   [authJwt.verifyToken],
   userController.uploadImage
 );
-router.get(
-  "/api/user/get-image/:id",
-  [authJwt.verifyToken],
-  userController.getImage
-);
+router.get("/api/user/get-image/:id", userController.getImage);
 router.patch(
   "/api/user/:id",
   [authJwt.verifyToken, authJwt.isAdmin],

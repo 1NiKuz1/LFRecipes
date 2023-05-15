@@ -17,7 +17,6 @@
                 раздел, но для того чтобы добавлять свои рецепты необходимо
                 будет авторизоваться.
               </p>
-              <form-button>Приступим</form-button>
             </div>
           </div>
           <div class="info-cards__img-wrapper">
@@ -45,7 +44,6 @@
                 свобода действий во время добавления рецептуры. Делитись
                 рецептами в социальных сетях
               </p>
-              <form-button>Приступим</form-button>
             </div>
           </div>
         </div>
@@ -59,7 +57,6 @@
                 жизнь создав для себя удобную среду где можно найти чем вкусно
                 покушать.
               </p>
-              <form-button>Приступим</form-button>
             </div>
           </div>
           <div class="info-cards__img-wrapper">
@@ -75,14 +72,7 @@
   </section>
 </template>
 
-<script>
-import FormButton from "@/components/UI/FormButton.vue";
-export default {
-  components: {
-    FormButton,
-  },
-};
-</script>
+<script></script>
 
 <style scoped>
 .home {
