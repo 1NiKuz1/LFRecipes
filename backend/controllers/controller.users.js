@@ -65,10 +65,10 @@ class UserController {
         id_role: req.body.id_role,
       };
       await UserModel.insertUser(data);
-      //await mailService.sendActivationMail(
-      //  data.email,
-      //  `${process.env.API_URL}/api/activate/${data.email_token}`
-      //);
+      await mailService.sendActivationMail(
+        data.email,
+        `${process.env.API_URL}/api/activate/${data.email_token}`
+      );
       return res.send("The user has been added");
     } catch (err) {
       if (err instanceof ApiError) {
@@ -133,7 +133,6 @@ class UserController {
     try {
       const result = await UserModel.findUserByExtend("id_user", req.params.id);
       if (!result.img) {
-        //return next(ApiError.Error(404, "User's img wasn't found"));
         return res.status(200).send(result.img);
       }
       const metadata = await sharp(result.img).metadata();
