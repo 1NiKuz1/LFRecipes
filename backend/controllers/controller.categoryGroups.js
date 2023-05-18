@@ -6,36 +6,36 @@ class CategoryGroupController {
   async getCategoryGroups(req, res, next) {
     try {
       const categoryGroups = await CategoryGroupModel.getCategoryGroups();
-      return res.send(categoryGroups);
+      return res.json(categoryGroups);
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
   async addCategoryGroup(req, res, next) {
     try {
       await CategoryGroupModel.insertCategoryGroup(req.body);
-      return res.send("The category group has been added");
+      return res.send("Группа категорий добалена");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
   async updateCategoryGroup(req, res, next) {
     try {
       await CategoryGroupModel.updateCategoryGroup(req.params.id, req.body);
-      return res.send("The category group has been updated");
+      return res.send("Группа категорий обновлена");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -53,12 +53,12 @@ class CategoryGroupController {
         }
       }
       await CategoryGroupModel.deleteCategoryGroup(req.params.id);
-      return res.send("The category group has been deleted");
+      return res.send("Группа категорий удалена");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 }

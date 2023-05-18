@@ -31,9 +31,9 @@
             ></Field>
             <ErrorMessage name="repeatPassword" class="change-form__error" />
           </div>
-          <div v-if="errorMessage" class="alert alert-danger" role="alert">
+          <p v-if="errorMessage" class="change-form__error">
             {{ errorMessage }}
-          </div>
+          </p>
           <div class="change-form__butn-wrapper">
             <form-button :disabled="isLoading">Отправить</form-button>
           </div>
@@ -77,19 +77,24 @@ export default {
           .trim()
           .required("Обязательное поле")
           .email("Не верный формат"),
-        password: yup.string().trim().min(8).required("Обязательное поле"),
+        password: yup
+          .string()
+          .trim()
+          .min(8, "Миниму 8 символов")
+          .required("Обязательное поле"),
         repeatPassword: yup
           .string()
           .trim()
-          .min(8)
+          .min(8, "Миниму 8 символов")
           .required("Обязательное поле"),
       });
     },
   },
   methods: {
     async handleLogin(values) {
+      this.errorMessage = "";
       if (values.password !== values.repeatPassword) {
-        this.errorMessage = "Passwords don't match";
+        this.errorMessage = "Пароли не совпадают";
         return;
       }
       this.isLoading = true;
@@ -97,13 +102,7 @@ export default {
         await this.changeUserPassword(values.email, values.password);
         this.$router.push("/");
       } catch (error) {
-        this.errorMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
-        console.log(this.message);
+        this.errorMessage = error.response.data.message;
       }
       this.isLoading = false;
     },

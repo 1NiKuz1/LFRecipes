@@ -9,38 +9,6 @@ const bcrypt = require("bcryptjs");
 const uuid = require("uuid");
 const mailService = require("../service/mail-service.js");
 class UserController {
-  async all(req, res, next) {
-    try {
-      return res.status(200).send("Public Content.");
-    } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
-    }
-  }
-
-  async user(req, res, next) {
-    try {
-      return res.status(200).send("User Content.");
-    } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
-    }
-  }
-
-  async admin(req, res, next) {
-    try {
-      return res.status(200).send("Admin Content.");
-    } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
-    }
-  }
-
-  async moderator(req, res, next) {
-    try {
-      return res.status(200).send("Moderator Content.");
-    } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
-    }
-  }
-
   async getUsersWithoutAdmins(req, res, next) {
     try {
       const users = await UserModel.getUsersWithoutAdmins();
@@ -49,7 +17,7 @@ class UserController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -67,14 +35,15 @@ class UserController {
       await UserModel.insertUser(data);
       await mailService.sendActivationMail(
         data.email,
-        `${process.env.API_URL}/api/activate/${data.email_token}`
+        `${process.env.API_URL}/api/activate/${data.email_token}`,
+        "Активация аккаунта"
       );
-      return res.send("The user has been added");
+      return res.send("Пользователь добавлен");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -87,7 +56,7 @@ class UserController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -103,12 +72,12 @@ class UserController {
       await FavoriteRecipeModel.deleteAllUserFavoriteRecipes(req.params.id);
       await RefreshTokenModel.destroyTokenByExtend("id_user", req.params.id);
       await UserModel.deleteUser(req.params.id);
-      return res.send("The user has been deleted");
+      return res.send("Пользователь удален");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -119,13 +88,12 @@ class UserController {
       const buffer = Buffer.from(imageData, "base64");
       const metadata = await sharp(buffer).metadata();
       if (!metadata.format) {
-        return next(ApiError.Error(400, "Invalid image format"));
+        return next(ApiError.Error(400, "Недопустимый формат изображения"));
       }
       await UserModel.updateImageUserById(buffer, req.body.id_user);
-      //await userModel.updateUser("img", buffer, "id_user", req.body.id_user);
-      return res.status(200).send({ message: "Image saved successfully" });
+      return res.send("Изображение сохранено");
     } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -139,7 +107,7 @@ class UserController {
       res.set("Content-Type", `image/${metadata.format}`);
       return res.status(200).send(result.img);
     } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 }

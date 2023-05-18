@@ -21,17 +21,18 @@ class AuthController {
       };
       const role = await roleModel.getIdRole(req.body.role);
       data.id_role = role.id_role;
-      const user = await userModel.insertUser(data);
+      await userModel.insertUser(data);
       await mailService.sendActivationMail(
         data.email,
-        `${process.env.API_URL}/api/activate/${data.email_token}`
+        `${process.env.API_URL}/api/activate/${data.email_token}`,
+        "Активация аккаунта"
       );
-      return res.json(user);
+      return res.send("Пользователь создан");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -39,10 +40,10 @@ class AuthController {
     try {
       const user = await userModel.findUserByExtend("email", req.body.email);
       if (!user) {
-        return next(ApiError.Error(401, "Email Not found"));
+        return next(ApiError.Error(401, "Email не найден"));
       }
       if (!user.is_activated) {
-        return next(ApiError.Error(401, "Email not confirmed"));
+        return next(ApiError.Error(401, "Email не подтверждён"));
       }
       const passwordIsValid = bcrypt.compareSync(
         req.body.password,
@@ -50,7 +51,7 @@ class AuthController {
       );
 
       if (!passwordIsValid) {
-        return next(ApiError.Error(401, "Invalid Password"));
+        return next(ApiError.Error(401, "Неверерный пароль"));
       }
 
       const token = jwt.sign({ id: user.id_user }, config.secret, {
@@ -90,7 +91,7 @@ class AuthController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -98,7 +99,7 @@ class AuthController {
     const { refreshToken: requestToken } = req.body;
 
     if (requestToken == null) {
-      return next(ApiError.Error(403, "Refresh Token is required"));
+      return next(ApiError.Error(403, "Refresh Token обязательный"));
     }
 
     try {
@@ -108,7 +109,9 @@ class AuthController {
       );
 
       if (!refreshToken) {
-        return next(ApiError.Error(403, "Refresh token is not in database!"));
+        return next(
+          ApiError.Error(403, "Refresh token отсутствует в базе данных!")
+        );
       }
 
       if (refreshTokenModel.verifyExpiration(refreshToken)) {
@@ -116,7 +119,7 @@ class AuthController {
         return next(
           ApiError.Error(
             403,
-            "Refresh token was expired. Please make a new signin request"
+            "Срок дейсвтия Refresh token истек. Пожалуйста сделайте новый signin request"
           )
         );
       }
@@ -137,7 +140,7 @@ class AuthController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -146,16 +149,15 @@ class AuthController {
       const emailToken = req.params.link;
       const user = await userModel.findUserByExtend("email_token", emailToken);
       if (!user) {
-        return next(ApiError.Error(404, "Incorect activation link"));
+        return next(ApiError.Error(404, "Некорректная ссылка активации"));
       }
-      //await userModel.updateUser("is_activated", 1, "id_user", user.id_user);
       await userModel.updateUser(user.id_user, { is_activated: 1 });
       return res.redirect(process.env.CLIENT_URL);
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -163,19 +165,14 @@ class AuthController {
     try {
       const user = await userModel.findUserByExtend("email", req.body.email);
       if (!user) {
-        return next(ApiError.Error(401, "Email Not found"));
+        return next(ApiError.Error(401, "Email не найден"));
       }
       const emailToken = uuid.v4();
-      //await userModel.updateUser(
-      //  "email_token",
-      //  emailToken,
-      //  "id_user",
-      //  user.id_user,
-      //);
       await userModel.updateUser(user.id_user, { email_token: emailToken });
       await mailService.sendActivationMail(
         req.body.email,
-        `${process.env.API_URL}/api/fogort-password/${emailToken}`
+        `${process.env.API_URL}/api/fogort-password/${emailToken}`,
+        "Сброс пароля"
       );
       return res.status(200).json({
         emailToken: emailToken,
@@ -184,7 +181,7 @@ class AuthController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -193,24 +190,19 @@ class AuthController {
       const emailToken = req.params.link;
       const user = await userModel.findUserByExtend("email_token", emailToken);
       if (!user) {
-        return next(ApiError.Error(404, "Incorect activation link"));
+        return next(ApiError.Error(404, "Некорректная ссылка активации"));
       }
       if (user.is_fogort_password) {
         return res.redirect(process.env.CLIENT_URL + "/change-password");
       }
-      //await userModel.updateUser(
-      //  "is_fogort_password",
-      //  1,
-      //  "id_user",
-      //  user.id_user
-      //);
+
       await userModel.updateUser(user.id_user, { is_fogort_password: 1 });
       return res.redirect(process.env.CLIENT_URL + "/change-password");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -218,30 +210,21 @@ class AuthController {
     try {
       const user = await userModel.findUserByExtend("email", req.body.email);
       if (!user) {
-        return next(ApiError.Error(401, "Email Not found"));
+        return next(ApiError.Error(401, "Email не найден"));
       }
       if (!user.is_fogort_password) {
-        return next(ApiError.Error(401, "Email not verified"));
+        return next(ApiError.Error(401, "Email не проверен"));
       }
       const password = bcrypt.hashSync(req.body.password, 8);
-      //await userModel.updateUser("password", password, "id_user", user.id_user);
-      await userModel.updateUser(user.id_user, { password: password });
-      //await userModel.updateUser(
-      //  "is_fogort_password",
-      //  0,
-      //  "id_user",
-      //  user.id_user
-      //);
+      await userModel.updateUser(user.id_user, { password });
+      //await userModel.updateUser(user.id_user, { password: password });
       await userModel.updateUser(user.id_user, { is_fogort_password: 0 });
-      return res.status(200).json({
-        message: "password was changed",
-      });
-      //return res.redirect(process.env.CLIENT_URL);
+      return res.send("Пароль изменен");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 }

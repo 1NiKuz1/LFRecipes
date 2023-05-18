@@ -1,22 +1,6 @@
 import api from "./api";
 
 class UserService {
-  getPublicContent() {
-    return api.get("/test/all");
-  }
-
-  getUserBoard() {
-    return api.get("/test/user");
-  }
-
-  getModeratorBoard() {
-    return api.get("/test/moderator");
-  }
-
-  getAdminBoard() {
-    return api.get("/test/admin");
-  }
-
   async getUsersWithoutAdmins() {
     try {
       const result = await api.get("/users/without-admins");

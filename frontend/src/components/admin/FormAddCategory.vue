@@ -17,15 +17,13 @@
 
       <label for="id_category_group">Группы категорий</label>
       <Field as="select" name="id_category_group" class="add-form__form-select">
-        <optgroup label="Роли">
-          <option
-            v-for="categoryGroup of categoryGroups"
-            :key="categoryGroup.id"
-            :value="categoryGroup.id"
-          >
-            {{ categoryGroup.group_name }}
-          </option>
-        </optgroup>
+        <option
+          v-for="categoryGroup of categoryGroups"
+          :key="categoryGroup.id"
+          :value="categoryGroup.id"
+        >
+          {{ categoryGroup.group_name }}
+        </option>
       </Field>
     </div>
     <div v-if="errorMessage" class="alert alert-danger" role="alert">

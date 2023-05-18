@@ -23,8 +23,9 @@
       ></Field>
       <ErrorMessage name="repeatPassword" class="reg-form__error" />
     </div>
-    <div v-if="errorMessage" class="alert alert-danger" role="alert">
-      {{ errorMessage }}
+    <p v-if="errorMessage" class="reg-form__error">{{ errorMessage }}</p>
+    <div v-if="successMessage" class="alert alert-success" role="alert">
+      {{ successMessage }}
     </div>
     <div class="reg-form__butn-wrapper">
       <form-button :disabled="isLoading">Отправить</form-button>
@@ -60,6 +61,7 @@ export default {
   },
   data() {
     return {
+      successMessage: "",
       errorMessage: "",
       isLoading: false,
     };
@@ -73,7 +75,11 @@ export default {
           .trim()
           .required("Обязательное поле")
           .email("Не верный формат"),
-        password: yup.string().trim().min(8).required("Обязательное поле"),
+        password: yup
+          .string()
+          .trim()
+          .min(8, "Миниму 8 символов")
+          .required("Обязательное поле"),
         repeatPassword: yup
           .string()
           .trim()
@@ -83,10 +89,19 @@ export default {
     },
   },
   methods: {
+    hideDialog(delay) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(this.$emit("hideDialog"));
+        }, delay);
+      });
+    },
+
     async handlerRegister(values) {
-      console.log(values);
+      this.successMessage = "";
+      this.errorMessage = "";
       if (values.password !== values.repeatPassword) {
-        this.errorMessage = "Passwords don't match";
+        this.errorMessage = "Пароли не совпадают";
         return;
       }
       this.isLoading = true;
@@ -97,17 +112,13 @@ export default {
           password: values.password,
           role: "user",
         });
-        this.$emit("hideDialog");
+        this.successMessage = "На почту отправлено письмо для активации";
+        await this.hideDialog(4000);
       } catch (error) {
-        this.errorMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
-        console.log(this.message);
+        this.errorMessage = error.response.data.message;
+      } finally {
+        this.isLoading = false;
       }
-      this.isLoading = false;
     },
   },
 };

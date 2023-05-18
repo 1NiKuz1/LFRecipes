@@ -4,6 +4,7 @@ const authJwt = require("../middleware/authJwt.js");
 const verifySignUp = require("../middleware/verifySignUp.js");
 const authController = require("../controllers/controller.auth.js");
 const userController = require("../controllers/controller.users.js");
+const roleController = require("../controllers/controller.roles");
 const categoryController = require("../controllers/controller.categories.js");
 const categoryGroupController = require("../controllers/controller.categoryGroups.js");
 const recipeController = require("../controllers/controller.recipes.js");
@@ -27,6 +28,14 @@ router.post("/api/fogort-password", authController.forgotPassword);
 router.get("/api/fogort-password/:link", authController.isUserForgotPassword);
 
 router.patch("/api/change-password", authController.changeUserPassword);
+
+// Roles
+
+router.get(
+  "/api/roles",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  roleController.getRoles
+);
 
 // User controllers
 

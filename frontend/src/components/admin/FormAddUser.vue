@@ -31,11 +31,9 @@
 
       <label for="id_role">Роли</label>
       <Field as="select" name="id_role" class="add-form__form-select">
-        <optgroup label="Роли">
-          <option v-for="role of roles" :key="role" :value="role">
-            {{ role }}
-          </option>
-        </optgroup>
+        <option v-for="role of roles" :key="role.id_role" :value="role.id_role">
+          {{ role.name }}
+        </option>
       </Field>
     </div>
     <div v-if="errorMessage" class="alert alert-danger" role="alert">
@@ -53,6 +51,7 @@ import FormButton from "@/components/UI/FormButton.vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
 import UserService from "@/services/user.service.js";
+import RoleService from "@/services/role.service.js";
 export default {
   name: "form-add-user",
 
@@ -68,10 +67,14 @@ export default {
 
   data() {
     return {
-      roles: [1, 2],
+      roles: [],
       errorMessage: "",
       isLoading: false,
     };
+  },
+
+  mounted() {
+    this.loadRoles();
   },
 
   computed: {
@@ -83,12 +86,21 @@ export default {
           .trim()
           .required("Обязательное поле")
           .email("Не верный формат"),
-        password: yup.string().trim().min(8).required("Обязательное поле"),
+        password: yup
+          .string()
+          .trim()
+          .min(8, "Миниму 8 символов")
+          .required("Обязательное поле"),
       });
     },
   },
 
   methods: {
+    async loadRoles() {
+      this.roles = await RoleService.getRoles();
+      this.roles = this.roles.filter((role) => role.name !== "admin");
+    },
+
     async handlerAddUser(values) {
       if (!values.id_role) values.id_role = 1;
       this.isLoading = true;

@@ -166,6 +166,8 @@ export default {
     },
 
     async handleAddRecipe(values) {
+      this.errorCategories = "";
+      this.errorImage = "";
       if (!values.categories) {
         this.errorCategories = "Нужно выбрать хотя бы одну категорию";
         return;
@@ -175,6 +177,13 @@ export default {
         this.errorImage = "Необходимо добавить изображение";
         return;
       }
+      const fileFormats = ["png", "jpg", "jpeg", "svg"];
+      const fromatOfFile = values.img.name.split(".").at(-1);
+      if (!fileFormats.includes(fromatOfFile)) {
+        this.errorImage = "Формат не поддерживается";
+        return;
+      }
+      console.log(values.img);
       values.id_user = this.userData.user.id;
       this.isLoading = true;
       try {

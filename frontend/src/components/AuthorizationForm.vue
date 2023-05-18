@@ -16,9 +16,7 @@
       ></Field>
       <ErrorMessage name="password" class="auth-form__error" />
     </div>
-    <div v-if="errorMessage" class="alert alert-danger" role="alert">
-      {{ errorMessage }}
-    </div>
+    <p v-if="errorMessage" class="auth-form__error">{{ errorMessage }}</p>
     <div class="auth-form__butn-wrapper">
       <form-button :disabled="isLoading">Войти</form-button>
     </div>
@@ -65,7 +63,11 @@ export default {
           .trim()
           .required("Обязательное поле")
           .email("Не верный формат"),
-        password: yup.string().trim().min(8).required("Обязательное поле"),
+        password: yup
+          .string()
+          .trim()
+          .min(8, "Миниму 8 символов")
+          .required("Обязательное поле"),
       });
     },
   },
@@ -74,21 +76,18 @@ export default {
       this.$emit("hideDialog");
       this.$router.push("/fogort-password");
     },
+
     async handleLogin(values) {
+      this.errorMessage = "";
       this.isLoading = true;
       try {
         await this.login({ email: values.email, password: values.password });
         this.$emit("hideDialog");
       } catch (error) {
-        this.errorMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
-        console.log(this.message);
+        this.errorMessage = error.response.data.message;
+      } finally {
+        this.isLoading = false;
       }
-      this.isLoading = false;
     },
   },
 };

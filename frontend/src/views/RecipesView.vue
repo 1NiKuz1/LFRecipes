@@ -124,6 +124,7 @@ export default {
       if (!this.recipeCategories.lenght) await this.getRecipeCategories();
       await this.loadRecipes();
     },
+
     async loadRecipes() {
       try {
         const data = {
@@ -152,9 +153,12 @@ export default {
       this.loadRecipes();
     },
 
+    page() {
+      this.loadRecipes();
+    },
+
     selectedCategories: {
       handler(newValue, oldValue) {
-        console.log(newValue);
         this.loadRecipes();
       },
       deep: true,

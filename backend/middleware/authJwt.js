@@ -11,23 +11,26 @@ class AuthJwt {
       const token = req.headers["x-access-token"];
 
       if (!token) {
-        return next(ApiError.Error(403, "No token provided!"));
+        return next(ApiError.Error(403, "Токен не предоставлен!"));
       }
 
       jwt.verify(token, config.secret, (err, decoded) => {
         if (err) {
           if (err instanceof TokenExpiredError) {
             return next(
-              ApiError.Error(401, "Unauthorized! Access Token was expired!")
+              ApiError.Error(
+                401,
+                "Неавтоизованы! Срок действия Access Token истек!"
+              )
             );
           }
-          return next(ApiError.Error(401, "Unauthorized"));
+          return next(ApiError.Error(401, "Неавтоизованы"));
         }
         req.id_user = decoded.id;
         next();
       });
     } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   };
 
@@ -36,11 +39,11 @@ class AuthJwt {
       const user = await userModel.findUserByExtend("id_user", req.id_user);
       const role = await roleModel.getRole(user.id_role);
       if (role.name !== req.role) {
-        return next(ApiError.Error(403, `Require ${req.role} role`));
+        return next(ApiError.Error(403, `Только для ${req.role}`));
       }
       next();
     } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   };
 
@@ -68,11 +71,11 @@ class AuthJwt {
         role.name !== ROLES[2] &&
         role.name !== ROLES[1]
       ) {
-        return next(ApiError.Error(403, `Forbidden for you`));
+        return next(ApiError.Error(403, `Запрецено для вас`));
       }
       next();
     } catch (error) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   };
 }

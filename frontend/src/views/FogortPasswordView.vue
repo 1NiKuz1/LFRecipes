@@ -17,8 +17,11 @@
             ></Field>
             <ErrorMessage name="email" class="fogort-form__error" />
           </div>
-          <div v-if="errorMessage" class="alert alert-danger" role="alert">
+          <p v-if="errorMessage" class="fogort-form__error">
             {{ errorMessage }}
+          </p>
+          <div v-if="successMessage" class="alert alert-success" role="alert">
+            {{ successMessage }}
           </div>
           <div class="fogort-form__butn-wrapper">
             <form-button :disabled="isLoading">Отправить</form-button>
@@ -51,6 +54,7 @@ export default {
   },
   data() {
     return {
+      successMessage: "",
       errorMessage: "",
       isLoading: false,
     };
@@ -67,18 +71,24 @@ export default {
     },
   },
   methods: {
+    redirectToMain(delay) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(this.$router.push("/"));
+        }, delay);
+      });
+    },
+
     async handleLogin(values) {
+      this.successMessage = "";
+      this.errorMessage = "";
       this.isLoading = true;
       try {
         await this.fogortPassword(values.email);
+        this.successMessage = "На почту отправлено письмо для сброса пароля";
+        await this.redirectToMain(4000);
       } catch (error) {
-        this.errorMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
-        console.log(this.message);
+        this.errorMessage = error.response.data.message;
       }
       this.isLoading = false;
     },

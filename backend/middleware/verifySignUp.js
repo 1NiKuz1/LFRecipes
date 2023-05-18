@@ -7,26 +7,24 @@ class VerifySignUp {
     try {
       let user = await userModel.findUserByExtend("login", req.body.login);
       if (user) {
-        return next(ApiError.Error(400, "Failed! Login is already in use!"));
+        return next(ApiError.Error(400, "Логин уже используется"));
       }
       user = await userModel.findUserByExtend("email", req.body.email);
       if (user) {
-        return next(ApiError.Error(400, "Failed! Email is already in use!"));
+        return next(ApiError.Error(400, "Email уже используется"));
       }
       next();
     } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   };
 
   checkRoleExisted = (req, res, next) => {
     if (!req.body.role) {
-      return next(ApiError.Error(400, "Failed! The role was not found"));
+      return next(ApiError.Error(400, "Роль не найдена"));
     }
     if (!ROLES.includes(req.body.role)) {
-      return next(
-        ApiError.Error(400, "Failed! Role does not exist = " + req.body.role)
-      );
+      return next(ApiError.Error(400, "Роль не существует = " + req.body.role));
     }
     next();
   };

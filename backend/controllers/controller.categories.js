@@ -5,36 +5,36 @@ class CategoryController {
   async getCategories(req, res, next) {
     try {
       const categorys = await CategoryModel.getCategories();
-      return res.send(categorys);
+      return res.json(categorys);
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
   async addCategory(req, res, next) {
     try {
       await CategoryModel.insertCategory(req.body);
-      return res.send("The category has been added");
+      return res.send("Категория добавлена");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
   async updateCategory(req, res, next) {
     try {
       await CategoryModel.updateCategory(req.params.id, req.body);
-      return res.send("The category has been updated");
+      return res.send("Категория обновлена");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -44,12 +44,12 @@ class CategoryController {
         req.params.id
       );
       await CategoryModel.deleteCategory(req.params.id);
-      return res.send("The category has been deleted");
+      return res.send("Категория удалена");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 }

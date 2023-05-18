@@ -1,21 +1,16 @@
-const { getRoles, getRole } = require("../models/model.roles.js");
-
-exports.showRoles = (req, res) => {
-  getRoles((err, results) => {
-    if (err) {
-      res.send(err);
-    } else {
-      res.json(results);
+const RoleModel = require("../models/model.roles.js");
+class RoleController {
+  async getRoles(req, res, next) {
+    try {
+      const roles = await RoleModel.getRoles();
+      return res.json(roles);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        return next(err);
+      }
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
-  });
-};
+  }
+}
 
-exports.showRole = (req, res) => {
-  getRole(req.body.id_role, (err, results) => {
-    if (err) {
-      res.send(err);
-    } else {
-      res.json(results);
-    }
-  });
-};
+module.exports = new RoleController();

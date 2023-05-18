@@ -1,7 +1,6 @@
 <template>
   <div class="categories-table">
     <template v-if="categories && categoryGroups">
-      <!--{{ categories }}-->
       <DataTable
         v-model:editingRows="editingRows"
         :value="categories"
@@ -25,19 +24,21 @@
             @click="isShowDialog = !isShowDialog"
           />
         </template>
+
         <Column field="category_name" header="Category name">
           <template #editor="{ data, field }">
             <InputText v-model="data[field]" maxlength="100" />
           </template>
         </Column>
-        <Column field="group_name" header="Group name">
+
+        <Column field="id_category_group" header="Group name">
           <template #editor="{ data, field }">
             <Dropdown
               v-model="data[field]"
               :options="categoryGroups"
               optionLabel="group_name"
               optionValue="id"
-              placeholder="Выберете группу категории"
+              placeholder="Выберите группу категории"
             >
             </Dropdown>
           </template>
@@ -126,11 +127,11 @@ export default {
       let { newData, index } = event;
       this.categories[index] = newData;
       try {
-        //console.log(newData);
         await CategoryService.updateCategory(newData.id, {
           category_name: newData.category_name,
-          id_category_group: newData.group_name,
+          id_category_group: newData.id_category_group,
         });
+        await this.LoadCategories();
       } catch (error) {
         console.log(error);
       }

@@ -71,17 +71,15 @@ export default {
       return Math.ceil(this.countOfRecords / this.limit);
     },
     maxPage() {
-      if (this.page <= this.countOfViewPages) return this.countOfViewPages;
-      if (this.page + this.countOfViewPages / 2 >= this.countOfPages)
+      if (this.page <= this.countOfPages) return this.countOfPages;
+      if (this.page + this.countOfPages / 2 >= this.countOfPages)
         return this.countOfPages;
-      return (
-        this.page + this.countOfViewPages - Math.ceil(this.countOfViewPages / 2)
-      );
+      return this.page + this.countOfPages - Math.ceil(this.countOfPages / 2);
     },
     pages() {
       const arrOfPages = [];
       for (
-        let page = this.maxPage - (this.countOfViewPages - 1);
+        let page = this.maxPage - (this.countOfPages - 1);
         page <= this.maxPage;
         ++page
       )

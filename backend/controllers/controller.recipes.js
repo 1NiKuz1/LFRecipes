@@ -13,11 +13,11 @@ async function convertImage(image) {
     const buffer = Buffer.from(imageData, "base64");
     const metadata = await sharp(buffer).metadata();
     if (!metadata.format) {
-      return ApiError.Error(400, "Invalid image format");
+      return ApiError.Error(400, "Недопустимый формат изображения");
     }
     return buffer;
   } catch (err) {
-    return ApiError.BadRequest(500, "invalid image request", err);
+    return ApiError.BadRequest(500, "Недопустимый запрос изображения", err);
   }
 }
 
@@ -50,12 +50,12 @@ class RecipeController {
           id_category: categoryId,
         });
       });
-      return res.json(recipe);
+      return res.send("Рецепт добавлен");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -95,12 +95,12 @@ class RecipeController {
           id_category: categoryId,
         });
       });
-      return res.json(recipe);
+      return res.send("Рецепт обновлен");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -111,7 +111,7 @@ class RecipeController {
         req.params.id_recipe
       );
       if (!recipe) {
-        return next(ApiError.Error(400, "The recipe is alredy delete"));
+        return next(ApiError.Error(400, "Рецепта не существует"));
       }
       // Удаление рецепта из избранных
       await FavoriteRecipeModel.deleteFavoriteRecipe(req.params.id_recipe);
@@ -121,12 +121,12 @@ class RecipeController {
 
       // Удаление рецепта
       await RecipeModel.deleteRecipe(req.params.id_recipe);
-      return res.json("The recipe has been removed");
+      return res.send("Рецепт удален");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -137,7 +137,7 @@ class RecipeController {
         await FavoriteRecipeModel.getUserFavoriteRecipes(req.body.id_user)
       ).forEach((recipe) => {
         if (recipe.id_recipe === req.body.id_recipe) {
-          return next(ApiError.Error(400, "The recipe is alredy exists"));
+          return next(ApiError.Error(400, "Рецепт уже сущесвует"));
         }
       });
 
@@ -149,12 +149,12 @@ class RecipeController {
       // Добавление рецепта
       await FavoriteRecipeModel.addFavoriteRecipe(data);
 
-      return res.send("The recipe has been added");
+      return res.send("Рецепт добавлен");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -172,7 +172,7 @@ class RecipeController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -186,7 +186,7 @@ class RecipeController {
         userFavoriteRecipes.push(recipe.id_recipe);
       });
       if (!userFavoriteRecipes.includes(+req.params.id_recipe)) {
-        return next(ApiError.Error(400, "The recipe is alredy delete"));
+        return next(ApiError.Error(400, "Рецепта не существует"));
       }
 
       // Удаление рецепта
@@ -194,12 +194,12 @@ class RecipeController {
         req.params.id_user,
         req.params.id_recipe
       );
-      return res.json("The favorite recipe has been removed");
+      return res.json("Рецепт удален");
     } catch (err) {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -226,7 +226,7 @@ class RecipeController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -250,7 +250,7 @@ class RecipeController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -281,7 +281,7 @@ class RecipeController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -313,7 +313,7 @@ class RecipeController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -325,7 +325,7 @@ class RecipeController {
       if (err instanceof ApiError) {
         return next(err);
       }
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 
@@ -339,7 +339,7 @@ class RecipeController {
       res.set("Content-Type", `image/${metadata.format}`);
       return res.status(200).send(result.img);
     } catch (err) {
-      next(ApiError.BadRequest(500, "invalid database request", err));
+      next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }
 }
