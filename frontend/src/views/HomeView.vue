@@ -122,10 +122,6 @@
   border-radius: 30px;
 }
 
-.info-cards__item--reverse .info-cards__img-wrapper {
-  justify-content: start;
-}
-
 @media (max-width: 991px) {
   .info-cards__item {
     flex-wrap: wrap;

@@ -1,7 +1,7 @@
 <template>
   <section class="recipes">
     <div class="container-md">
-      <h1>Ищите интерисующие вас рецепты</h1>
+      <h1>Ищите интересующие вас рецепты</h1>
       <p class="desc">
         Здесь вы сможете просматреть рецепты пользуясь фильтрами по разным
         категориям и сортировкой.
@@ -158,7 +158,7 @@ export default {
     },
 
     selectedCategories: {
-      handler(newValue, oldValue) {
+      handler() {
         this.loadRecipes();
       },
       deep: true,

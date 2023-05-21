@@ -25,6 +25,7 @@ const setup = (auth) => {
       if (
         originalConfig.url !== "/auth/signin" &&
         originalConfig.url !== "/change-password" &&
+        originalConfig.url !== "/fogort-password" &&
         err.response
       ) {
         // Срок действия токена доступа истек
