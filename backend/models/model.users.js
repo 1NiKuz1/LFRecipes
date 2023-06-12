@@ -62,21 +62,6 @@ class UserModel {
       );
     });
   }
-  //updateUser(setField, setValue, whereField, whereValue) {
-  //  return new Promise((resolve, reject) => {
-  //    db.query(
-  //      `UPDATE USERS SET ${setField} = "${setValue}" WHERE ${whereField} = "${whereValue}"`,
-  //      (err, results) => {
-  //        if (err) {
-  //          console.log(err);
-  //          reject(err);
-  //        } else {
-  //          resolve(results[0]);
-  //        }
-  //      }
-  //    );
-  //  });
-  //}
 
   updateImageUserById(image, id) {
     return new Promise((resolve, reject) => {

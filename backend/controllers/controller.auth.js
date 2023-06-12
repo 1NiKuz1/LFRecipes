@@ -217,7 +217,6 @@ class AuthController {
       }
       const password = bcrypt.hashSync(req.body.password, 8);
       await userModel.updateUser(user.id_user, { password });
-      //await userModel.updateUser(user.id_user, { password: password });
       await userModel.updateUser(user.id_user, { is_fogort_password: 0 });
       return res.send("Пароль изменен");
     } catch (err) {

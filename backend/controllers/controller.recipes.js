@@ -223,9 +223,6 @@ class RecipeController {
       res.set("x-total-count", totalRecords);
       return res.json(recipes);
     } catch (err) {
-      if (err instanceof ApiError) {
-        return next(err);
-      }
       next(ApiError.BadRequest(500, "Недопустимый запрос к базе данных", err));
     }
   }

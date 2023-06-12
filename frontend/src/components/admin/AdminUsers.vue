@@ -37,12 +37,6 @@
           </template>
         </Column>
 
-        <!--<Column field="id_role" header="Role">
-          <template #editor="{ data, field }">
-            <InputNumber v-model="data[field]" :min="1" :max="2" />
-          </template>
-        </Column>-->
-
         <Column field="id_role" header="Role name">
           <template #editor="{ data, field }">
             <Dropdown
