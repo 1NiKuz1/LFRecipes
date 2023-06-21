@@ -41,7 +41,7 @@ class UserService {
       const result = await api.put(`/user/`, data);
       return result.data;
     } catch (error) {
-      return Promise.reject(error);
+      return Promise.reject(error?.response?.data?.message);
     }
   }
 

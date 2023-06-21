@@ -59,7 +59,11 @@ router.delete(
 );
 router.put(
   "/api/user/",
-  [authJwt.verifyToken, authJwt.isAdmin],
+  [
+    authJwt.verifyToken,
+    authJwt.isAdmin,
+    verifySignUp.checkDuplicateLoginOrEmail,
+  ],
   userController.addUser
 );
 

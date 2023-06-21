@@ -108,7 +108,7 @@ export default {
       recipes: [],
       selectedCategories: [],
       isShowCategories: true,
-      limit: 10,
+      limit: 5,
       page: 1,
       countOfRecords: 0,
     };

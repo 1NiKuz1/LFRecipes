@@ -183,7 +183,6 @@ export default {
         this.errorImage = "Формат не поддерживается";
         return;
       }
-      console.log(values.img);
       values.id_user = this.userData.user.id;
       this.isLoading = true;
       try {
